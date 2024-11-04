@@ -1,49 +1,5 @@
 pub fn generate_readme_content() -> String {
 	let content = r#"
-<div align="center"><img src="./media/reethme.png" width="100%"></img></div>
-
-<h1 align="center">ReethMe - ドキュメント</h1>
-
-
-<!-- Badges section -->
-<div align="center">
-
-![https://www.rust-lang.org/es](https://img.shields.io/badge/Rust-24273A.svg?style=flat&logo=rust&logoColor=fc9d03) 
-[![license](https://img.shields.io/pypi/l/supervision)](https://github.com/roboflow/supervision/blob/main/LICENSE.md)
-
-</div>
-<!-- Badges section end -->
-
-
-## Table of Contents
-- [About](#-about)
-- [Installation](#-installation)
-
-
-📖 About
-> [!NOTE]  
->  While the templates include a default setup for general projects, they can be customized to fit different visual styles and layouts based on your preferences.
-
-This program uses Rust’s efficient concurrency model and powerful text templating capabilities to auto-generate personalized README files with rich formatting. It includes:
-
-- **serde**: for serializing and deserializing JSON configurations for customizing README content.
-- **tera**: a flexible templating engine for defining the README structure with user-specific variables.
-- **tokio**: an asynchronous runtime to efficiently handle multiple I/O tasks, enabling quick processing for larger projects with multiple README files.
-
-With this setup, the program allows you to produce highly customized and visually engaging README files that can incorporate the latest updates and templates effortlessly. 🚨 However, be aware that this advanced templating setup may require careful handling of configuration files to avoid potential mismatches.
-
-## 🛠️ Installation
-
-This repository depends purely on Rust, so you must have the [Rust](https://www.rust-lang.org/tools/install) enviroment installed.
-
-### Windows Installation
-If you use Windows as your OS, simply access the link of the oficial page and choose your installation methods.
-
-### Linux Installation
-First of all, you will need a C compiler for executing Rust programs. 
-vLinux users should generally install GCC or Clang, according to their distribution’s documentation. For example, if you use Ubuntu, you can install the `build-essential` package by simply running.
-<div align="center"><img src="./media/reethme.png" width="100%"></img></div>
-
 <h1 align="center">ReethMe - ドキュメント</h1>
 
 
