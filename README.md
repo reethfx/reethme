@@ -1,5 +1,5 @@
 
-<div align="center"><img src="./media/beherit.png" width="250" height="250"></img></div>
+<div align="center"><img src="./media/reethme.png" width="100%"></img></div>
 
 <h1 align="center">ReethMe - ドキュメント</h1>
 
@@ -23,9 +23,9 @@
 
 This program uses Rust’s efficient concurrency model and powerful text templating capabilities to auto-generate personalized README files with rich formatting. It includes:
 
-    serde for serializing and deserializing JSON configurations for customizing README content.
-    tera: a flexible templating engine for defining the README structure with user-specific variables.
-    tokio: an asynchronous runtime to efficiently handle multiple I/O tasks, enabling quick processing for larger projects with multiple README files.
+- **serde**: for serializing and deserializing JSON configurations for customizing README content.
+- **tera**: a flexible templating engine for defining the README structure with user-specific variables.
+- **tokio**: an asynchronous runtime to efficiently handle multiple I/O tasks, enabling quick processing for larger projects with multiple README files.
 
 With this setup, the program allows you to produce highly customized and visually engaging README files that can incorporate the latest updates and templates effortlessly. 🚨 However, be aware that this advanced templating setup may require careful handling of configuration files to avoid potential mismatches.
 
