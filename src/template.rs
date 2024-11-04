@@ -1,4 +1,5 @@
-
+pub fn generate_readme_content() -> String {
+	let content = r#"
 <div align="center"><img src="./media/reethme.png" width="100%"></img></div>
 
 <h1 align="center">ReethMe - ドキュメント</h1>
@@ -112,3 +113,6 @@ Then install the compiler with the following command:
 ```bash
 xcode-select --install
 ```
+"#;
+	content.to_string()
+}
