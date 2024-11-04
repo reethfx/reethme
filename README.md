@@ -82,7 +82,7 @@ If you use Windows as your OS, simply access the link of the oficial page and ch
 
 ### Linux Installation
 First of all, you will need a C compiler for executing Rust programs. 
-vLinux users should generally install GCC or Clang, according to their distribution’s documentation. For example, if you use Ubuntu, you can install the `build-essential` package by simply running.
+Linux users should generally install GCC or Clang, according to their distribution’s documentation. For example, if you use Ubuntu, you can install the `build-essential` package by simply running.
 ```bash
 sudo apt update
 sudo apt install build-essential
