@@ -1,22 +1,27 @@
 
-<h1 align="center">Nix</h1>
+<h1 align="center">Critian</h1>
 
 <!-- Badges section -->
 <div align="center">
 
-![Nix](https://img.shields.io/badge/Nix-5277C3.svg?style=flat&logo=nixos&logoColor=white)
-[![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![C++](https://img.shields.io/badge/C++-00599C.svg?style=flat&logo=c%2B%2B&logoColor=white)
+
 
 </div>
 <!-- Badges section end -->
 
 ## Table of Contents
-- [Holi](#-holi)
+- [Introduccion](#-introduccion)
+- [Puto Teo](#-puto-teo)
 
 
 
-## Holi
-Content for the Holi section goes here.
+## Introduccion
+Content for the Introduccion section goes here.
+
+
+## Puto Teo
+Content for the Puto Teo section goes here.
 
 
 

@@ -5,16 +5,35 @@ use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 
+// Función para validar la entrada del usuario
+fn get_valid_input(prompt: &str, options: &[&str]) -> String {
+    loop {
+        println!("{}", prompt);
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        let input = input.trim();
+
+        if let Ok(index) = input.parse::<usize>() {
+            if index > 0 && index <= options.len() {
+                return options[index - 1].to_string();
+            }
+        }
+        println!("Invalid input. Please enter a valid number between 1 and {}.", options.len());
+    }
+}
+
 fn main() {
     let languages = vec![
-        ("Rust", "\u{e7a8}", "bright_red"),       // nf-dev-rust
-        ("Python", "\u{e606}", "bright_yellow"),  // nf-dev-python
-        ("JavaScript", "\u{e781}", "yellow"),     // nf-dev-javascript
-        ("TypeScript", "\u{e628}", "cyan"),      // nf-dev-typescript
-        ("Go", "\u{e724}", "bright_cyan"),        // nf-dev-go
-        ("C++", "\u{e61d}", "blue"),             // nf-dev-cplusplus
-        ("C#", "\u{f81a}", "bright_blue"),        // nf-md-language_csharp
-        ("Nixlang", "\u{f313}", "bright_white"),  // nf-dev-nix
+        ("Rust", "\u{e7a8}", "bright_red"),
+        ("Python", "\u{e606}", "bright_yellow"),
+        ("JavaScript", "\u{e781}", "yellow"),
+        ("TypeScript", "\u{e628}", "cyan"),
+        ("Go", "\u{e724}", "bright_cyan"),
+        ("C++", "\u{e61d}", "blue"),
+        ("C#", "\u{f81a}", "bright_blue"),
+        ("Nixlang", "\u{f313}", "bright_white"),
     ];
 
     let licenses = vec![
@@ -48,65 +67,63 @@ fn main() {
 
     println!("Available languages:");
     display_in_rows_with_nerdfonts(&languages, 5);
-    println!("\nSelect the language for your documentation (enter the number):");
 
-    let mut lang_choice = String::new();
-    io::stdin()
-        .read_line(&mut lang_choice)
-        .expect("Failed to read input");
-    let lang_choice: usize = lang_choice
-        .trim()
-        .parse()
-        .expect("Please enter a valid number");
-
-    if lang_choice == 0 || lang_choice > languages.len() {
-        panic!("Invalid language selection");
-    }
-    let selected_language = &languages[lang_choice - 1].0;
+    let language_options: Vec<&str> = languages.iter().map(|(name, _, _)| *name).collect();
+    let selected_language = get_valid_input(
+        "\nSelect the language for your documentation (enter the number):",
+        &language_options,
+    );
 
     println!("\nAvailable licenses:");
     display_in_rows(&licenses, 5);
-    println!("\nSelect a license (enter the number):");
 
-    let mut license_choice = String::new();
-    io::stdin()
-        .read_line(&mut license_choice)
-        .expect("Failed to read input");
-    let license_choice: usize = license_choice
-        .trim()
-        .parse()
-        .expect("Please enter a valid number");
+    let selected_license = get_valid_input(
+        "\nSelect a license (enter the number):",
+        &licenses,
+    );
 
-    if license_choice == 0 || license_choice > licenses.len() {
-        panic!("Invalid license selection");
-    }
-    let selected_license = &licenses[license_choice - 1];
+    let title = loop {
+        println!("\nEnter the title for your README:");
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        let title = input.trim();
+        if !title.is_empty() {
+            break title.to_string();
+        }
+        println!("Title cannot be empty. Please enter a valid title.");
+    };
 
-    println!("\nEnter the title for your README:");
-    let mut title = String::new();
-    io::stdin()
-        .read_line(&mut title)
-        .expect("Failed to read input");
-    let title = title.trim();
-
-    println!("\nHow many sections do you want?");
-    let mut num_sections = String::new();
-    io::stdin()
-        .read_line(&mut num_sections)
-        .expect("Failed to read input");
-    let num_sections: usize = num_sections
-        .trim()
-        .parse()
-        .expect("Please enter a valid number");
+    let num_sections = loop {
+        println!("\nHow many sections do you want?");
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read input");
+        if let Ok(num) = input.trim().parse::<usize>() {
+            if num > 0 {
+                break num;
+            }
+        }
+        println!("Please enter a valid number greater than 0.");
+    };
 
     let mut sections = Vec::new();
     for i in 1..=num_sections {
-        println!("Enter the title for section {}:", i);
-        let mut section_title = String::new();
-        io::stdin()
-            .read_line(&mut section_title)
-            .expect("Failed to read input");
-        sections.push(section_title.trim().to_string());
+        loop {
+            println!("Enter the title for section {}:", i);
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read input");
+            let section_title = input.trim();
+            if !section_title.is_empty() {
+                sections.push(section_title.to_string());
+                break;
+            }
+            println!("Section title cannot be empty. Please enter a valid title.");
+        }
     }
 
     let dir_path = Path::new("generated");
@@ -116,7 +133,7 @@ fn main() {
     }
 
     let mut file = File::create(&file_path).expect("File couldn't be created");
-    let content = template::generate_readme_content(&title, selected_language, selected_license, &sections);
+    let content = template::generate_readme_content(&title, &selected_language, &selected_license, &sections);
 
     file.write_all(content.as_bytes())
         .expect("File couldn't be written");
