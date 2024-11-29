@@ -1,24 +1,22 @@
 
-<h1 align="center">Test</h1>
+<h1 align="center">Nix</h1>
 
 <!-- Badges section -->
 <div align="center">
 
-![https://www.rust-lang.org/es](https://img.shields.io/badge/Rust-24273A.svg?style=flat&logo=rust&logoColor=fc9d03) 
-[![license](https://img.shields.io/pypi/l/supervision)](https://github.com/roboflow/supervision/blob/main/LICENSE.md)
+![Nix](https://img.shields.io/badge/Nix-5277C3.svg?style=flat&logo=nixos&logoColor=white)
+[![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 </div>
 <!-- Badges section end -->
 
 ## Table of Contents
-- [📋 Guides](#-📋-guides)
-- [Installation](#-installation)
+- [Holi](#-holi)
 
-## 📋 Guides
-Content for the 📋 Guides section goes here.
 
-## Installation
-Content for the Installation section goes here.
+
+## Holi
+Content for the Holi section goes here.
 
 
 
