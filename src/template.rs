@@ -3,6 +3,7 @@ pub fn generate_readme_content(
     language: &str,
     license: &str,
     sections: &[String],
+    frameworks: &[String],
 ) -> String {
     let badges = match language {
         "Rust" => r#"![Rust](https://img.shields.io/badge/Rust-24273A.svg?style=flat&logo=rust&logoColor=fc9d03)"#,
@@ -26,6 +27,26 @@ pub fn generate_readme_content(
         "None" => "",
         _ => "",
     };
+
+    let framework_badges: Vec<String> = frameworks
+        .iter()
+        .map(|fw| match fw.as_str() {
+            "ExpressJS" => r#"![ExpressJS](https://img.shields.io/badge/ExpressJS-000000.svg?style=flat&logo=express&logoColor=white)"#.to_string(),
+            "NestJS" => r#"![NestJS](https://img.shields.io/badge/NestJS-E0234E.svg?style=flat&logo=nestjs&logoColor=white)"#.to_string(),
+            "Django" => r#"![Django](https://img.shields.io/badge/Django-092E20.svg?style=flat&logo=django&logoColor=white)"#.to_string(),
+            "Flask" => r#"![Flask](https://img.shields.io/badge/Flask-000000.svg?style=flat&logo=flask&logoColor=white)"#.to_string(),
+            "FastAPI" => r#"![FastAPI](https://img.shields.io/badge/FastAPI-009688.svg?style=flat&logo=fastapi&logoColor=white)"#.to_string(),
+            "Rocket" => r#"![Rocket](https://img.shields.io/badge/Rocket-red.svg?style=flat&logo=rocket&logoColor=white)"#.to_string(),
+            "Actix-web" => r#"![Actix-web](https://img.shields.io/badge/Actix--web-1C78C0.svg?style=flat&logo=actix-web&logoColor=white)"#.to_string(),
+            "React" => r#"![React](https://img.shields.io/badge/React-61DAFB.svg?style=flat&logo=react&logoColor=black)"#.to_string(),
+            "Vue" => r#"![Vue](https://img.shields.io/badge/Vue-4FC08D.svg?style=flat&logo=vue.js&logoColor=white)"#.to_string(),
+            "Angular" => r#"![Angular](https://img.shields.io/badge/Angular-DD0031.svg?style=flat&logo=angular&logoColor=white)"#.to_string(),
+            "EntityFramework" => r#"![EntityFramework](https://img.shields.io/badge/EntityFramework-512BD4.svg?style=flat&logo=.net&logoColor=white)"#.to_string(),
+            "home-manager" => r#"![home-manager](https://img.shields.io/badge/home--manager-5277C3.svg?style=flat&logo=nixos&logoColor=white)"#.to_string(),
+            "nixpkgs" => r#"![nixpkgs](https://img.shields.io/badge/nixpkgs-5277C3.svg?style=flat&logo=nixos&logoColor=white)"#.to_string(),
+            _ => "".to_string(),
+        })
+        .collect();
 
     let mut table_of_contents = String::new();
     for section in sections {
@@ -54,6 +75,8 @@ Content for the {} section goes here.
 {}
 {}
 
+{}
+
 </div>
 <!-- Badges section end -->
 
@@ -63,6 +86,11 @@ Content for the {} section goes here.
 {}
 
 "#,
-        title, badges, license_badge, table_of_contents, sections_content
+        title,
+        badges,
+        framework_badges.join("\n"),
+        license_badge,
+        table_of_contents,
+        sections_content
     )
 }
