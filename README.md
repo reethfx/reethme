@@ -18,7 +18,7 @@
 - [Installation](#-installation)
 
 
-📖 About
+## 📖 About
 > [!NOTE]  
 >  While the templates include a default setup for general projects, they can be customized to fit different visual styles and layouts based on your preferences.
 
