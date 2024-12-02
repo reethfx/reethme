@@ -1,11 +1,12 @@
 mod template;
+mod contributors;
 
-use colored::*;
+use contributors::fetch_contributors;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
 
-fn get_valid_input(prompt: &str, options: &[&str]) -> String {
+fn get_valid_named_input(prompt: &str, options: &[(&str, &str)]) -> String {
     loop {
         println!("{}", prompt);
         let mut input = String::new();
@@ -14,12 +15,10 @@ fn get_valid_input(prompt: &str, options: &[&str]) -> String {
             .expect("Failed to read input");
         let input = input.trim();
 
-        if let Ok(index) = input.parse::<usize>() {
-            if index > 0 && index <= options.len() {
-                return options[index - 1].to_string();
-            }
+        if let Some(&(name, _)) = options.iter().find(|&&(name, _)| name.eq_ignore_ascii_case(input)) {
+            return name.to_string();
         }
-        println!("Invalid input. Please enter a valid number between 1 and {}.", options.len());
+        println!("Invalid input. Please enter a valid name from the options.");
     }
 }
 
@@ -39,105 +38,77 @@ fn get_yes_no(prompt: &str) -> bool {
     }
 }
 
-fn main() {
+fn display_items_with_icons(items: &[(&str, &str)], label: &str) {
+    println!("\n{}", label);
+    for (name, icon) in items {
+        println!("{} {}", icon, name);
+    }
+    println!();
+}
+
+#[tokio::main]
+async fn main() {
     let languages = vec![
-        ("Rust", "\u{e7a8}", "bright_red"),
-        ("Python", "\u{e606}", "bright_yellow"),
-        ("JavaScript", "\u{e781}", "yellow"),
-        ("TypeScript", "\u{e628}", "cyan"),
-        ("Go", "\u{e724}", "bright_cyan"),
-        ("C++", "\u{e61d}", "blue"),
-        ("C#", "\u{f81a}", "bright_blue"),
-        ("Nixlang", "\u{f313}", "bright_white"),
+        ("Rust", "\u{e7a8}"),
+        ("Python", "\u{e606}"),
+        ("JavaScript", "\u{e781}"),
+        ("TypeScript", "\u{e628}"),
+        ("Go", "\u{e724}"),
+        ("C++", "\u{e61d}"),
+        ("C#", "\u{f81a}"),
+        ("Nixlang", "\u{f313}"),
     ];
 
-    let frameworks = vec![
-        ("TypeScript", vec!["ExpressJS", "NestJS"]),
-        ("Python", vec!["Django", "Flask", "FastAPI"]),
-        ("Rust", vec!["Rocket", "Actix-web"]),
-        ("JavaScript", vec!["React", "Vue", "Angular"]),
-        ("C#", vec!["EntityFramework"]),
+    let frameworks_by_language = vec![
+        ("Rust", vec![("Rocket", "\u{e7aa}"), ("Actix-web", "\u{e7ab}")]),
+        ("Python", vec![("Django", "\u{e60d}"), ("Flask", "\u{e610}"), ("FastAPI", "\u{e70c}")]),
+        ("JavaScript", vec![("React", "\u{e7ba}"), ("Vue", "\u{e7b4}"), ("Angular", "\u{e753}")]),
+        ("TypeScript", vec![("ExpressJS", "\u{e70e}"), ("NestJS", "\u{e7b7}")]),
+        ("C#", vec![("EntityFramework", "\u{f84d}")]),
+        ("Nixlang", vec![("home-manager", "\u{f313}"), ("nixpkgs", "\u{f313}")]),
     ];
 
     let licenses = vec![
-        "MIT", "Apache-2.0", "GPL-3.0", "BSD-3-Clause", "LGPL-2.1", "EPL-2.0", "None",
+        ("MIT", "\u{f3e0}"),
+        ("Apache-2.0", "\u{f3c9}"),
+        ("GPL-3.0", "\u{f3d8}"),
+        ("BSD-3-Clause", "\u{f3c7}"),
+        ("LGPL-2.1", "\u{f3da}"),
+        ("EPL-2.0", "\u{f3cf}"),
+        ("None", "\u{f0fe}"),
     ];
 
-    fn display_in_rows_with_nerdfonts(items: &[(&str, &str, &str)], max_rows: usize) {
-        let num_columns = (items.len() + max_rows - 1) / max_rows;
-        for row in 0..max_rows {
-            for col in 0..num_columns {
-                if let Some((name, icon, color)) = items.get(col * max_rows + row) {
-                    let formatted = format!("{} {}", icon, name).color(color.to_string());
-                    print!("{:<25}", formatted);
-                }
-            }
-            println!();
-        }
-    }
+    display_items_with_icons(&languages, "Available languages:");
+    let selected_language = get_valid_named_input("Enter the language for your documentation:", &languages);
 
-    fn display_in_rows(items: &[&str], max_rows: usize) {
-        let num_columns = (items.len() + max_rows - 1) / max_rows;
-        for row in 0..max_rows {
-            for col in 0..num_columns {
-                if let Some(item) = items.get(col * max_rows + row) {
-                    print!("{:<20}", item);
-                }
-            }
-            println!();
-        }
-    }
-
-    println!("Available languages:");
-    display_in_rows_with_nerdfonts(&languages, 5);
-
-    let language_options: Vec<&str> = languages.iter().map(|(name, _, _)| *name).collect();
-    let selected_language = get_valid_input(
-        "\nSelect the language for your documentation (enter the number):",
-        &language_options,
-    );
-
-    let mut selected_frameworks = vec![];
-    if let Some(framework_options) = frameworks
+    let mut selected_frameworks = Vec::new();
+    if let Some((_, frameworks)) = frameworks_by_language
         .iter()
-        .find(|(lang, _)| *lang == selected_language)
-        .map(|(_, fwks)| fwks)
+        .find(|&&(lang, _)| lang.eq_ignore_ascii_case(&selected_language))
     {
-        println!("\nAvailable frameworks for {}:", selected_language);
-        display_in_rows(&framework_options, 5);
-
-        println!("Select the frameworks you use (enter numbers separated by spaces, or press Enter to skip):");
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Failed to read input");
-        let input = input.trim();
-        if !input.is_empty() {
-            selected_frameworks = input
-                .split_whitespace()
-                .filter_map(|num| num.parse::<usize>().ok())
-                .filter(|&index| index > 0 && index <= framework_options.len())
-                .map(|index| framework_options[index - 1].to_string())
-                .collect();
+        display_items_with_icons(&frameworks, &format!("Available frameworks for {}:", selected_language));
+        loop {
+            println!("Enter a framework name to include or type 'done' to finish:");
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read input");
+            let input = input.trim();
+            if input.eq_ignore_ascii_case("done") {
+                break;
+            }
+            if let Some((name, _)) = frameworks.iter().find(|&&(name, _)| name.eq_ignore_ascii_case(input)) {
+                selected_frameworks.push(name.to_string());
+            } else {
+                println!("Invalid framework name. Please try again.");
+            }
         }
+    } else {
+        println!("No frameworks available for the selected language.");
     }
 
-    if selected_language == "Nixlang" {
-        if get_yes_no("\nDo you use home-manager? (yes/no)") {
-            selected_frameworks.push("home-manager".to_string());
-        }
-        if get_yes_no("Do you use nixpkgs? (yes/no)") {
-            selected_frameworks.push("nixpkgs".to_string());
-        }
-    }
-
-    println!("\nAvailable licenses:");
-    display_in_rows(&licenses, 5);
-
-    let selected_license = get_valid_input(
-        "\nSelect a license (enter the number):",
-        &licenses,
-    );
+    display_items_with_icons(&licenses, "Available licenses:");
+    let selected_license = get_valid_named_input("Enter the license for your documentation:", &licenses);
 
     let title = loop {
         println!("\nEnter the title for your README:");
@@ -152,50 +123,95 @@ fn main() {
         println!("Title cannot be empty. Please enter a valid title.");
     };
 
-    let num_sections = loop {
-        println!("\nHow many sections do you want?");
+    let mut sections = Vec::new();
+    loop {
+        println!("Enter a section name or type 'done' to finish:");
         let mut input = String::new();
         io::stdin()
             .read_line(&mut input)
             .expect("Failed to read input");
-        if let Ok(num) = input.trim().parse::<usize>() {
-            if num > 0 {
-                break num;
-            }
+        let input = input.trim();
+        if input.eq_ignore_ascii_case("done") {
+            break;
         }
-        println!("Please enter a valid number greater than 0.");
-    };
-
-    let mut sections = Vec::new();
-    for i in 1..=num_sections {
-        loop {
-            println!("Enter the title for section {}:", i);
-            let mut input = String::new();
-            io::stdin()
-                .read_line(&mut input)
-                .expect("Failed to read input");
-            let section_title = input.trim();
-            if !section_title.is_empty() {
-                sections.push(section_title.to_string());
-                break;
-            }
-            println!("Section title cannot be empty. Please enter a valid title.");
+        if !input.is_empty() {
+            sections.push(input.to_string());
+        } else {
+            println!("Section name cannot be empty.");
         }
     }
 
+    let mut contributors_section = String::new();
+    let mut include_contributors_in_toc = false;
+
+    if get_yes_no("\nDo you want to include a 'Contributors' section? (yes/no)") {
+        println!("\nEnter the GitHub username:");
+        let mut github_user = String::new();
+        io::stdin()
+            .read_line(&mut github_user)
+            .expect("Failed to read input");
+        let github_user = github_user.trim();
+
+        println!("\nEnter the repository name:");
+        let mut repo_name = String::new();
+        io::stdin()
+            .read_line(&mut repo_name)
+            .expect("Failed to read input");
+        let repo_name = repo_name.trim();
+
+        match fetch_contributors(github_user, repo_name).await {
+            Ok(contributors) => {
+                if contributors.is_empty() {
+                    contributors_section = "##Contributors\nNo contributors found.".to_string();
+                } else {
+                    let contributors_html: Vec<String> = contributors
+                        .iter()
+                        .map(|contributor| {
+                            format!(
+                                r#"<a href="https://github.com/{login}" target="_blank" title="{login}">
+<img src="{avatar_url}" width="75" height="75" style="border-radius: 50%; margin: 5px;">
+</a>"#,
+                                login = contributor.login,
+                                avatar_url = contributor.avatar_url
+                            )
+                        })
+                        .collect();
+                    contributors_section = format!(
+                        r#"
+<div style="display: flex; flex-wrap: wrap;">
+{}
+</div>
+"#,
+                        contributors_html.join("\n")
+                    );
+                    include_contributors_in_toc = true;
+                }
+            }
+            Err(_) => {
+                println!("Failed to fetch contributors. Skipping the 'Contributors' section.");
+            }
+        }
+    }
+
+    if include_contributors_in_toc {
+        sections.push("Contributors".to_string());
+    }
+
     let dir_path = Path::new("generated");
-    let file_path = dir_path.join("README.md");
     if !dir_path.exists() {
         fs::create_dir_all(&dir_path).expect("Failed to create 'generated' directory");
     }
 
+    let file_path = dir_path.join("README.md");
     let mut file = File::create(&file_path).expect("File couldn't be created");
+
     let content = template::generate_readme_content(
         &title,
         &selected_language,
         &selected_license,
         &sections,
         &selected_frameworks,
+        &contributors_section,
     );
 
     file.write_all(content.as_bytes())

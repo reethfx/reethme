@@ -4,6 +4,7 @@ pub fn generate_readme_content(
     license: &str,
     sections: &[String],
     frameworks: &[String],
+    contributors_section: &str,
 ) -> String {
     let badges = match language {
         "Rust" => r#"![Rust](https://img.shields.io/badge/Rust-24273A.svg?style=flat&logo=rust&logoColor=fc9d03)"#,
@@ -85,12 +86,14 @@ Content for the {} section goes here.
 
 {}
 
+{}
 "#,
         title,
         badges,
         framework_badges.join("\n"),
         license_badge,
         table_of_contents,
-        sections_content
+        sections_content,
+        contributors_section
     )
 }
