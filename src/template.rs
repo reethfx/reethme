@@ -5,8 +5,10 @@ pub fn generate_readme_content(
     sections: &[String],
     frameworks: &[String],
     contributors_section: &str,
+    dependencies: &[(String, String)],
 ) -> String {
-    let badges = match language {
+    // Lang badges
+    let language_badge = match language {
         "Rust" => r#"![Rust](https://img.shields.io/badge/Rust-24273A.svg?style=flat&logo=rust&logoColor=fc9d03)"#,
         "Python" => r#"![Python](https://img.shields.io/badge/Python-3776AB.svg?style=flat&logo=python&logoColor=white)"#,
         "JavaScript" => r#"![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=flat&logo=javascript&logoColor=black)"#,
@@ -18,6 +20,7 @@ pub fn generate_readme_content(
         _ => "",
     };
 
+    // Licence badges
     let license_badge = match license {
         "MIT" => r#"[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)"#,
         "Apache-2.0" => r#"[![Apache 2.0 License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)"#,
@@ -29,6 +32,7 @@ pub fn generate_readme_content(
         _ => "",
     };
 
+    // Framework badges
     let framework_badges: Vec<String> = frameworks
         .iter()
         .map(|fw| match fw.as_str() {
@@ -43,9 +47,18 @@ pub fn generate_readme_content(
             "Vue" => r#"![Vue](https://img.shields.io/badge/Vue-4FC08D.svg?style=flat&logo=vue.js&logoColor=white)"#.to_string(),
             "Angular" => r#"![Angular](https://img.shields.io/badge/Angular-DD0031.svg?style=flat&logo=angular&logoColor=white)"#.to_string(),
             "EntityFramework" => r#"![EntityFramework](https://img.shields.io/badge/EntityFramework-512BD4.svg?style=flat&logo=.net&logoColor=white)"#.to_string(),
-            "home-manager" => r#"![home-manager](https://img.shields.io/badge/home--manager-5277C3.svg?style=flat&logo=nixos&logoColor=white)"#.to_string(),
-            "nixpkgs" => r#"![nixpkgs](https://img.shields.io/badge/nixpkgs-5277C3.svg?style=flat&logo=nixos&logoColor=white)"#.to_string(),
             _ => "".to_string(),
+        })
+        .collect();
+
+    // Dependency badges
+    let dependency_badges: Vec<String> = dependencies
+        .iter()
+        .map(|(name, url)| {
+            format!(
+                r#"[![{}](https://img.shields.io/badge/dependency-{}-blue)]({})"#,
+                name, name, url
+            )
         })
         .collect();
 
@@ -75,6 +88,7 @@ Content for the {} section goes here.
 
 {}
 {}
+{}
 
 {}
 
@@ -89,8 +103,9 @@ Content for the {} section goes here.
 {}
 "#,
         title,
-        badges,
+        language_badge,
         framework_badges.join("\n"),
+        dependency_badges.join("\n"),
         license_badge,
         table_of_contents,
         sections_content,

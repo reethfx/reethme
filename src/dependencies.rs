@@ -1,40 +1,34 @@
-use std::io;
-
-pub fn get_dependencies() -> Vec<(String, String)> {
-    let mut dependencies = Vec::new();
-    println!("Do you want to include dependencies? (y/n)");
-    let mut include = String::new();
-    io::stdin()
-        .read_line(&mut include)
-        .expect("Failed to read input");
-    let include = include.trim().to_lowercase();
-
-    if include == "y" || include == "yes" {
-        loop {
-            println!("Enter the name of the dependency (or type 'done' to finish):");
-            let mut name = String::new();
-            io::stdin()
-                .read_line(&mut name)
-                .expect("Failed to read input");
-            let name = name.trim();
-
-            if name.eq_ignore_ascii_case("done") {
-                break;
-            }
-
-            println!("Enter the GitHub repository URL for '{}':", name);
-            let mut url = String::new();
-            io::stdin()
-                .read_line(&mut url)
-                .expect("Failed to read input");
-            let url = url.trim();
-
-            if !name.is_empty() && !url.is_empty() {
-                dependencies.push((name.to_string(), url.to_string()));
-            } else {
-                println!("Dependency name and URL cannot be empty. Please try again.");
-            }
-        }
+pub fn get_dependencies_by_language(language: &str) -> Vec<(String, String)> {
+    match language {
+        "Rust" => vec![
+            ("serde".to_string(), "https://github.com/serde-rs/serde".to_string()),
+            ("tokio".to_string(), "https://github.com/tokio-rs/tokio".to_string()),
+        ],
+        "Python" => vec![
+            ("requests".to_string(), "https://github.com/psf/requests".to_string()),
+            ("numpy".to_string(), "https://github.com/numpy/numpy".to_string()),
+        ],
+        "JavaScript" => vec![
+            ("react".to_string(), "https://github.com/facebook/react".to_string()),
+            ("axios".to_string(), "https://github.com/axios/axios".to_string()),
+        ],
+        "TypeScript" => vec![
+            ("typescript".to_string(), "https://github.com/microsoft/TypeScript".to_string()),
+            ("nestjs".to_string(), "https://github.com/nestjs/nest".to_string()),
+        ],
+        "Go" => vec![
+            ("gin".to_string(), "https://github.com/gin-gonic/gin".to_string()),
+            ("gorm".to_string(), "https://github.com/go-gorm/gorm".to_string()),
+        ],
+        "C++" => vec![
+            ("boost".to_string(), "https://github.com/boostorg/boost".to_string()),
+        ],
+        "C#" => vec![
+            ("Newtonsoft.Json".to_string(), "https://github.com/JamesNK/Newtonsoft.Json".to_string()),
+        ],
+        "Nixlang" => vec![
+            ("nixpkgs".to_string(), "https://github.com/NixOS/nixpkgs".to_string()),
+        ],
+        _ => vec![],
     }
-    dependencies
 }

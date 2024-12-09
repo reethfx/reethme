@@ -3,7 +3,7 @@ mod dependencies;
 mod contributors;
 
 use contributors::fetch_contributors;
-use dependencies::get_dependencies;
+use dependencies::get_dependencies_by_language;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
@@ -40,6 +40,44 @@ fn get_confirmation(prompt: &str) -> bool {
     }
 }
 
+fn select_dependencies(language: &str) -> Vec<(String, String)> {
+    let mut selected_dependencies = Vec::new();
+    if get_confirmation("Do you want to include dependencies for the selected language? (y/n)") {
+        let available_dependencies = get_dependencies_by_language(language);
+
+        if available_dependencies.is_empty() {
+            println!("No predefined dependencies available for {}.", language);
+        } else {
+            println!("Available dependencies for {}:", language);
+            for (index, (name, _)) in available_dependencies.iter().enumerate() {
+                println!("{}. {}", index + 1, name);
+            }
+
+            loop {
+                println!("Enter the number of the dependency to include or type 'done' to finish:");
+                let mut input = String::new();
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read input");
+                let input = input.trim();
+
+                if input.eq_ignore_ascii_case("done") {
+                    break;
+                }
+
+                match input.parse::<usize>() {
+                    Ok(num) if num > 0 && num <= available_dependencies.len() => {
+                        selected_dependencies.push(available_dependencies[num - 1].clone());
+                        println!("Added: {}", available_dependencies[num - 1].0);
+                    }
+                    _ => println!("Invalid input. Please enter a valid number or 'done'."),
+                }
+            }
+        }
+    }
+    selected_dependencies
+}
+
 fn display_items_with_icons(items: &[(&str, &str)], label: &str) {
     println!("\n{}", label);
     for (name, icon) in items {
@@ -50,8 +88,6 @@ fn display_items_with_icons(items: &[(&str, &str)], label: &str) {
 
 #[tokio::main]
 async fn main() {
-    let dependencies = get_dependencies();
-
     let languages = vec![
         ("Rust", "\u{e7a8}"),
         ("Python", "\u{e606}"),
@@ -84,6 +120,8 @@ async fn main() {
 
     display_items_with_icons(&languages, "Available languages:");
     let selected_language = get_valid_named_input("Enter the language for your documentation:", &languages);
+
+    let dependencies = select_dependencies(&selected_language);
 
     let mut selected_frameworks = Vec::new();
     if let Some((_, frameworks)) = frameworks_by_language
@@ -216,7 +254,7 @@ async fn main() {
         &sections,
         &selected_frameworks,
         &contributors_section,
-        // &dependencies,
+        &dependencies,
     );
 
     file.write_all(content.as_bytes())
