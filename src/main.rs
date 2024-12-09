@@ -1,7 +1,9 @@
 mod template;
+mod dependencies;
 mod contributors;
 
 use contributors::fetch_contributors;
+use dependencies::get_dependencies;
 use std::fs::{self, File};
 use std::io::{self, Write};
 use std::path::Path;
@@ -22,7 +24,7 @@ fn get_valid_named_input(prompt: &str, options: &[(&str, &str)]) -> String {
     }
 }
 
-fn get_yes_no(prompt: &str) -> bool {
+fn get_confirmation(prompt: &str) -> bool {
     loop {
         println!("{}", prompt);
         let mut input = String::new();
@@ -48,6 +50,8 @@ fn display_items_with_icons(items: &[(&str, &str)], label: &str) {
 
 #[tokio::main]
 async fn main() {
+    let dependencies = get_dependencies();
+
     let languages = vec![
         ("Rust", "\u{e7a8}"),
         ("Python", "\u{e606}"),
@@ -144,7 +148,7 @@ async fn main() {
     let mut contributors_section = String::new();
     let mut include_contributors_in_toc = false;
 
-    if get_yes_no("\nDo you want to include a 'Contributors' section? (yes/no)") {
+    if get_confirmation("\nDo you want to include a 'Contributors' section? (y/n)") {
         println!("\nEnter the GitHub username:");
         let mut github_user = String::new();
         io::stdin()
@@ -212,6 +216,7 @@ async fn main() {
         &sections,
         &selected_frameworks,
         &contributors_section,
+        // &dependencies,
     );
 
     file.write_all(content.as_bytes())
